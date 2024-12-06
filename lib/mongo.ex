@@ -639,7 +639,7 @@ defmodule Mongo do
         op_reply(flags: flags) when (@reply_cursor_not_found &&& flags) != 0 ->
           {:error, Mongo.Error.exception(message: "cursor not found")}
 
-        op_reply(docs: [%{"ok" => 0.0, "errmsg" => reason} = error]) ->
+        op_reply(docs: [%{"ok" => zero, "errmsg" => reason} = error]) when zero in [0.0, -0.0] ->
           {:error, %Mongo.Error{message: "command failed: #{reason}", code: error["code"]}}
 
         op_reply(docs: [%{"ok" => ok} = doc]) when ok == 1 ->

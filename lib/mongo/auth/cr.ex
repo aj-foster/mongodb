@@ -17,7 +17,7 @@ defmodule Mongo.Auth.CR do
       {:ok, %{"ok" => ok}} when ok == 1 ->
         :ok
 
-      {:ok, %{"ok" => 0.0, "errmsg" => reason, "code" => code}} ->
+      {:ok, %{"ok" => zero, "errmsg" => reason, "code" => code}} when zero in [0.0, -0.0] ->
         {:error,
          Mongo.Error.exception(message: "auth failed for '#{username}': #{reason}", code: code)}
 
