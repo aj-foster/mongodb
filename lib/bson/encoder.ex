@@ -20,12 +20,12 @@ defmodule BSON.Encoder do
   def encode(%BSON.Binary{binary: binary, subtype: :binary_old}) do
     subtype = subtype(:binary_old)
     size = IO.iodata_length(binary)
-    [<<size + 4::int32>>, subtype, <<size::int32>>, binary]
+    [<<size + 4::int32()>>, subtype, <<size::int32()>>, binary]
   end
 
   def encode(%BSON.Binary{binary: binary, subtype: subtype}) do
     subtype = subtype(subtype)
-    [<<IO.iodata_length(binary)::int32>>, subtype | binary]
+    [<<IO.iodata_length(binary)::int32()>>, subtype | binary]
   end
 
   def encode(%BSON.ObjectId{value: <<_::binary(12)>> = value}),
@@ -37,12 +37,12 @@ defmodule BSON.Encoder do
       |> DateTime.from_naive!("Etc/UTC")
       |> DateTime.to_unix(:millisecond)
 
-    <<unix_ms::int64>>
+    <<unix_ms::int64()>>
   end
 
   def encode(%DateTime{} = datetime) do
     unix_ms = DateTime.to_unix(datetime, :millisecond)
-    <<unix_ms::int64>>
+    <<unix_ms::int64()>>
   end
 
   def encode(%Decimal{} = decimal) do
@@ -51,7 +51,7 @@ defmodule BSON.Encoder do
 
   def encode(%Time{} = time) do
     value = Time.to_iso8601(time)
-    [<<byte_size(value) + 1::int32>>, value, 0x00]
+    [<<byte_size(value) + 1::int32()>>, value, 0x00]
   end
 
   def encode(%NaiveDateTime{} = datetime) do
@@ -60,7 +60,7 @@ defmodule BSON.Encoder do
       |> DateTime.from_naive!("Etc/UTC")
       |> DateTime.to_unix(:millisecond)
 
-    <<unix_ms::int64>>
+    <<unix_ms::int64()>>
   end
 
   def encode(%BSON.Regex{pattern: pattern, options: options}),
@@ -72,11 +72,11 @@ defmodule BSON.Encoder do
   def encode(%BSON.JavaScript{code: code, scope: scope}) do
     iodata = [encode(code), document(scope)]
     size = IO.iodata_length(iodata) + 4
-    [<<size::int32>> | iodata]
+    [<<size::int32()>> | iodata]
   end
 
   def encode(%BSON.Timestamp{value: epoch, ordinal: ordinal}),
-    do: <<ordinal::int32, epoch::int32>>
+    do: <<ordinal::int32(), epoch::int32()>>
 
   def encode([]) do
     document([])
@@ -107,20 +107,20 @@ defmodule BSON.Encoder do
     do: encode(Atom.to_string(value))
 
   def encode(value) when is_binary(value),
-    do: [<<byte_size(value) + 1::int32>>, value, 0x00]
+    do: [<<byte_size(value) + 1::int32()>>, value, 0x00]
 
   def encode(value) when is_float(value),
-    do: <<value::little-float64>>
+    do: <<value::little-float64()>>
 
   def encode(value) when is_int32(value),
-    do: <<value::int32>>
+    do: <<value::int32()>>
 
   def encode(value) when is_int64(value),
-    do: <<value::int64>>
+    do: <<value::int64()>>
 
   # Special case for forcing number encoding as long
   def encode({:long, value}) when is_int32(value) or is_int64(value),
-    do: <<value::int64>>
+    do: <<value::int64()>>
 
   def document(doc) do
     {_, iodata} =
@@ -149,7 +149,7 @@ defmodule BSON.Encoder do
           {key_type, [acc, type, key, value]}
       end)
 
-    [<<IO.iodata_length(iodata) + 5::int32>>, iodata, 0x00]
+    [<<IO.iodata_length(iodata) + 5::int32()>>, iodata, 0x00]
   end
 
   defp cstring(string), do: [string, 0x00]
