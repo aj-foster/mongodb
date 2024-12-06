@@ -221,7 +221,6 @@ defmodule Mongo.Protocol do
     end
   end
 
-  @impl DBConnection
   def checkin(%{socket: {mod, sock}} = s) do
     :ok = setopts(mod, sock, active: :once)
     {:ok, s}
