@@ -46,8 +46,8 @@ defmodule Mongo do
       interval, the operation returns an error
   """
 
-  use Bitwise
   use Mongo.Messages
+  import Bitwise
   alias Mongo.Query
   alias Mongo.ReadPreference
   alias Mongo.TopologyDescription

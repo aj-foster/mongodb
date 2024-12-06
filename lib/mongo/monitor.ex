@@ -2,7 +2,6 @@
 defmodule Mongo.Monitor do
   @moduledoc false
   use GenServer
-  use Bitwise
   require Logger
   alias Mongo.ServerDescription
   alias Mongo.Events.ServerHeartbeatStartedEvent
